@@ -20,9 +20,21 @@ class WizzairRegistration(unittest.TestCase):
         '//button[@data-test="navigation-menu-signin"]')
         rejestracja.click()
         time.sleep(3)
-
-
-
+        rejestr = driver.find_element_by_xpath(
+        '//button[text()="Rejestracja"]')
+        rejestr.click()
+        time.sleep(3)
+        imie_field = driver.find_element_by_name("firstName")
+        imie = 'Adam'
+        imie_field.send_keys(imie)
+        time.sleep(3)
+        nazwisko_field = driver.find_element_by_xpath('//input[@data-test="registrationmodal-last-name-input"]')
+        nazwisko = 'xxxx'
+        nazwisko_field.send_keys(nazwisko)
+        time.sleep(3)
+        plec = driver.find_element_by_name("Mężczyzna")
+        plec.click()
+        time.sleep(3)
 
 if __name__ == '__main__':
     unittest.main(verbosity=3)
