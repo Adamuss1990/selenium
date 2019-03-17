@@ -2,7 +2,12 @@
 
 from selenium import webdriver
 import unittest
-import time
+from time import sleep
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.by import By
+
+gender = 'male'
 
 class WizzairRegistration(unittest.TestCase):
     def setUp(self):
@@ -16,25 +21,81 @@ class WizzairRegistration(unittest.TestCase):
     def test_wrong_email(self):
         driver = self.driver
 
-        rejestracja = driver.find_element_by_xpath(
-        '//button[@data-test="navigation-menu-signin"]')
+        #ze względu na znikanie zaloguj
+        rejestracja = WebDriverWait(driver, 5).until(
+        EC.element_to_be_clickable(
+        (By.CSS_SELECTOR, "button[data-test=navigation-menu-signin]")))
         rejestracja.click()
-        time.sleep(3)
+
         rejestr = driver.find_element_by_xpath(
         '//button[text()="Rejestracja"]')
         rejestr.click()
-        time.sleep(3)
+
         imie_field = driver.find_element_by_name("firstName")
         imie = 'Adam'
         imie_field.send_keys(imie)
-        time.sleep(3)
+
         nazwisko_field = driver.find_element_by_xpath('//input[@data-test="registrationmodal-last-name-input"]')
         nazwisko = 'xxxx'
         nazwisko_field.send_keys(nazwisko)
-        time.sleep(3)
-        plec = driver.find_element_by_name("Mężczyzna")
-        plec.click()
-        time.sleep(3)
+
+        if gender == 'male':
+            m = driver.find_element_by_xpath('//label[@for="register-gender-male"]')
+            imie_field.click()
+            m.click()
+        else:
+            f = driver.find_element_by_xpath('//label[@for="register-gender-female"]')
+            f.click()
+
+
+        telefon = driver.find_element_by_xpath('//input[@placeholder="Telefon komórkowy"]')
+        kom_zam = '48 32 1234567'
+        telefon.send_keys(kom_zam)
+
+
+        #błędny email
+        email = driver.find_element_by_xpath('//input[@data-test="booking-register-email"]')
+        email_zam = 'adamuss7vp.pl'
+        email.send_keys(email_zam)
+
+
+        haslo = driver.find_element_by_xpath('//input[@data-test="booking-register-password"]')
+        haslo_zam = 'Adamuss7'
+        haslo.send_keys(haslo_zam)
+
+
+        narodowosc = driver.find_element_by_xpath(
+        '//input[@data-test="booking-register-country"]')
+        narodowosc.click()
+        szukanie_kraju = driver.find_element_by_xpath(
+        '//label[@data-test="booking-register-country-label"][164]')
+        szukanie_kraju.location_once_scrolled_into_view
+        szukanie_kraju.click()
+
+        zatwierdz = driver.find_element_by_xpath(
+        ' //label[@for="registration-privacy-policy-checkbox"][@class="rf-checkbox__label"]')
+        zatwierdz.click()
+
+        register_btn = driver.find_element_by_xpath('//button[@data-test="booking-register-submit"]')
+        register_btn.click()
+
+        #Test - znajdz wszystkie błedy
+
+        error_notices = self.driver.find_elements_by_xpath('//span[@class="rf-input__error__message"]/span')
+        visible_error_notices = []
+
+        for error in error_notices:
+            if error.is_displayed():
+                visible_error_notices.append(error)
+
+        len(visible_error_notices) == 1
+        error_text = visible_error_notices[0].get_attribute("innerText")
+        print "\n" + error_text
+        self.assertEqual(error_text, u"Nieprawidłowy adres e-mail")
+
+        sleep(2)
+
+
 
 if __name__ == '__main__':
     unittest.main(verbosity=3)
